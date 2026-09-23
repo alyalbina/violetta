@@ -41,17 +41,15 @@ body {
 /* Липкий первый экран + полоса прокрутки под ним: скролл по этой полосе
    поднимает закатные слои и раскрывает тизер второго экрана. */
 .hero {
-  position: sticky;
+  position: relative;
   top: 0;
-  height: 100svh;
+  min-height: 100svh;
   overflow: hidden;
   background: #F3E4D6;
   color: #FDFCFB;
 }
 
-.hero-spacer {
-  height: 130vh;
-}
+
 
 /* --------------------------------------------------------------------------
    Тизер второго экрана
@@ -314,6 +312,7 @@ body {
 
 .hero__cta {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   margin-top: clamp(18px, 3.2vh, 36px);
@@ -327,6 +326,92 @@ body {
   white-space: nowrap;
   box-shadow: 0 12px 28px rgba(30, 18, 46, 0.22);
   transition: background 180ms ease, transform 180ms ease;
+}
+
+/* Keyboard and motion controls share the existing cream/plum palette. */
+.nav a:focus-visible,
+.hero__motion:focus-visible {
+  outline: 2px solid #2C2144;
+  outline-offset: 3px;
+}
+
+.nav__cta:active {
+  background: #2C2144;
+  transform: translateY(1px);
+}
+
+.hero__motion {
+  position: absolute;
+  z-index: 40;
+  left: 16px;
+  bottom: 16px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid rgba(44, 33, 68, 0.18);
+  border-radius: 999px;
+  background: #F4EFE6;
+  color: #2C2144;
+  font: 500 12px/1.4 Manrope, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.hero__motion[hidden] {
+  display: none;
+}
+
+.hero__motion:hover {
+  background: #F3E4D6;
+}
+
+.hero__motion:active {
+  background: #F3C9CF;
+}
+
+.hero__content[inert] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* A readable normal-flow scene when motion is reduced, the viewport is short,
+   or JavaScript is unavailable. Keep all copy reachable by ordinary scrolling. */
+html:not(.hero-enhanced) .hero,
+.hero--static {
+  position: relative;
+  height: auto;
+  min-height: 100svh;
+}
+
+html:not(.hero-enhanced) .hero__content,
+.hero--static .hero__content {
+  position: relative;
+  min-height: 100svh;
+  padding-bottom: 48px;
+}
+
+html:not(.hero-enhanced) .hero__next,
+.hero--static .hero__next {
+  position: relative;
+  padding: 32px 16px;
+  background: #F3E4D6;
+  opacity: 1;
+}
+
+
+
+@media (max-height: 650px) {
+  .hero__title {
+    font-size: clamp(32px, 5.2vw, 52px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__word,
+  .hero__cta,
+  .nav__cta,
+  .hero__motion {
+    transition: none !important;
+  }
 }
 
 .hero__cta:hover {
@@ -413,5 +498,9 @@ body {
   .proof__pill {
     white-space: normal;
     text-align: center;
+  }
+
+  .hero__next-title {
+    white-space: normal;
   }
 }

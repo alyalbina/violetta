@@ -1,31 +1,38 @@
 /* ==========================================================================
    Hero — движение.
 
-   Всё движение считается в JS-кадрах, а не CSS-анимациями: в среде дизайна
-   системная настройка «уменьшить движение» глушила CSS-анимации и облака
-   стояли на месте. Поэтому здесь нет `prefers-reduced-motion` — вместо него
-   один явный тумблер MOTION ниже.
-
-     MOTION = true   дрейф облаков, мерцание звёзд, смена слова в заголовке
-     MOTION = false  сцена замирает, скролл-эффект продолжает работать
+   Сцена сохранена; смысловые пары меняются одним блоком. Уменьшение движения и низкое
+   окно включают статичную композицию; ручная пауза останавливает фон и слова.
    ========================================================================== */
 
 (function () {
   "use strict";
 
-  var MOTION = true;
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var shortViewport = window.matchMedia("(max-height: 650px)");
 
-  var WORDS = ["запомнят", "полюбят", "будут петь", "не забудут"];
+  var paused = false;
+  var staticScene = false;
+  var frameId = null;
+  var wordTimer = null;
+  var phaseTimers = [];
+  var lastTick = null;
+  var lastPaint = 0;
+  var renderedProgress = null;
+  var renderedStatic = null;
+  var animationStopped = false;
+
+  var WORDS = [["расскажет вашу", "историю"], ["превратит чувства", "в музыку"], ["скажет главное", "за вас"], ["останется с вами", "навсегда"]];
   var STAR_COUNT = 46;
-  var CYCLE = 3400; // как часто меняется слово, мс
-  var OUT = 560;    // уход вверх с размытием
-  var IN = 620;     // возврат снизу
+  var CYCLE = 3400; // цикл: около 3 секунд покоя и 440 мс перехода
+  var OUT = 200;    // мягкий уход вверх
+  var IN = 220;     // мягкий возврат снизу
 
   // 0 — слово на месте, 1 — уходит вверх, 2 — мгновенно переставлено вниз
   var PHASES = [
     { o: 1, y: 0, sc: 1, blur: 0, ms: IN, ease: "cubic-bezier(.22,.9,.24,1)" },
-    { o: 0, y: -14, sc: 0.965, blur: 5, ms: OUT, ease: "cubic-bezier(.5,0,.75,0)" },
-    { o: 0, y: 16, sc: 0.985, blur: 5, ms: 0, ease: "linear" }
+    { o: 0, y: -6, sc: 1, blur: 0, ms: OUT, ease: "cubic-bezier(.5,0,.75,0)" },
+    { o: 0, y: 6, sc: 1, blur: 0, ms: 0, ease: "linear" }
   ];
 
   // Хеш-рандом: раскладка звёзд одинакова при каждой загрузке.
@@ -39,6 +46,9 @@
   }
 
   var el = {
+    hero: document.querySelector(".hero"),
+    motion: document.getElementById("hero-motion"),
+    brand: document.querySelector(".nav__brand"),
     sky: document.getElementById("hero-sky"),
     starHost: document.getElementById("hero-stars"),
     cloudA: document.getElementById("hero-cloud-a"),
@@ -47,11 +57,13 @@
     bank2: document.getElementById("hero-bank-2"),
     bank3: document.getElementById("hero-bank-3"),
     content: document.getElementById("hero-content"),
-    next: document.getElementById("hero-next"),
-    word: document.getElementById("hero-word")
+    word: document.getElementById("hero-word"),
+    script: document.getElementById("hero-script"),
+    ending: document.getElementById("hero-ending")
   };
 
-  if (!el.sky || !el.word) return;
+  if (Object.keys(el).some(function (key) { return !el[key]; })) return;
+  document.documentElement.classList.add("hero-enhanced");
 
   var state = { wordIndex: 0, phase: 0, p: 0, t: 0 };
 
@@ -93,11 +105,11 @@
 
   function render() {
     var t = state.t;
-    var p = state.p;
-    var word = PHASES[state.phase];
+    var p = 0; // The scene no longer transforms in response to scrolling.
+    renderedProgress = state.p;
+    renderedStatic = staticScene;
 
     // Тизер второго экрана проявляется во второй половине скролла.
-    var nt = clamp01((p - 0.45) / 0.4);
     // Ночная часть сцены гаснет по мере подъёма закатных слоёв.
     var dim = 1 - Math.min(1, p * 1.4);
 
@@ -114,32 +126,43 @@
 
     // Горизонтальный дрейф: разные периоды и амплитуды у каждого облака.
     el.cloudA.style.transform =
-      "translate3d(" + (Math.sin(t / 7.5) * 26).toFixed(1) + "px, " +
-      (Math.sin(t / 5.1) * 6).toFixed(1) + "px, 0)";
+      "translate3d(" + (Math.sin(t / 15) * 8).toFixed(1) + "px, " +
+      (Math.sin(t / 19) * 2).toFixed(1) + "px, 0)";
     el.cloudB.style.transform =
-      "translate3d(" + (Math.sin(t / 9.2 + 2) * -30).toFixed(1) + "px, " +
-      (Math.sin(t / 6.3 + 1) * 5).toFixed(1) + "px, 0)";
+      "translate3d(" + (Math.sin(t / 18 + 2) * -9).toFixed(1) + "px, " +
+      (Math.sin(t / 21 + 1) * 2).toFixed(1) + "px, 0)";
     el.cloudC.style.transform =
-      "translate3d(" + (Math.sin(t / 11 + 4) * -20).toFixed(1) + "px, " +
-      (Math.sin(t / 7.7 + 3) * 7).toFixed(1) + "px, 0)";
+      "translate3d(" + (Math.sin(t / 22 + 4) * -6).toFixed(1) + "px, " +
+      (Math.sin(t / 24 + 3) * 2).toFixed(1) + "px, 0)";
 
-    // Закатные слои поднимаются с наложением и разным масштабом.
-    el.bank2.style.transform =
-      "translateX(-50%) translate3d(" + (Math.sin(t / 14) * 10).toFixed(1) + "px, " +
-      (p * 16).toFixed(1) + "%, 0) scale(" + (1 + p * 0.1).toFixed(3) + ")";
-    el.bank3.style.transform =
-      "translateX(-50%) translate3d(" + (Math.sin(t / 17 + 2) * -14).toFixed(1) + "px, " +
-      (p * 11).toFixed(1) + "%, 0) scale(" + (1 + p * 0.06).toFixed(3) + ")";
+    // The section boundary is a static atmospheric blend, not a moving object.
+    el.bank2.style.transform = "translateX(-50%)";
+    el.bank3.style.transform = "translateX(-50%)";
 
     el.sky.style.transform = "translateY(" + (-p * 96).toFixed(2) + "svh)";
 
     el.content.style.transform = "translateY(" + (-p * 90).toFixed(1) + "px)";
+    var contentHidden = p >= 1 / 1.9;
+    el.motion.hidden = staticScene || contentHidden;
+    if (contentHidden && document.activeElement === el.motion) {
+      el.brand.focus({ preventScroll: true });
+    }
     el.content.style.opacity = Math.max(0, 1 - p * 1.9).toFixed(3);
+    if (contentHidden && el.content.contains(document.activeElement)) {
+      el.brand.focus({ preventScroll: true });
+    }
+    el.content.inert = contentHidden;
+    el.content.setAttribute("aria-hidden", String(contentHidden));
 
-    el.next.style.opacity = nt.toFixed(3);
-    el.next.style.transform = "translateY(" + ((1 - nt) * 26).toFixed(1) + "px)";
 
-    el.word.textContent = WORDS[state.wordIndex];
+  }
+
+  // Only touch the word when its phase changes, not on every cloud frame.
+  function renderWord() {
+    var word = PHASES[state.phase];
+    // Both lines change in the same task while their shared wrapper is hidden.
+    el.script.textContent = WORDS[state.wordIndex][0];
+    el.ending.textContent = WORDS[state.wordIndex][1];
     el.word.style.transition =
       "opacity " + word.ms + "ms " + word.ease +
       ", transform " + word.ms + "ms " + word.ease +
@@ -149,54 +172,103 @@
     el.word.style.transform = "translateY(" + word.y + "px) scale(" + word.sc + ")";
   }
 
-  /* ---- скролл ---------------------------------------------------------- */
+  /* ---- lifecycle ------------------------------------------------------- */
 
-  function onScroll() {
-    var vh = document.documentElement.clientHeight || 1;
-    var next = clamp01(window.scrollY / (vh * 0.85));
-    if (Math.abs(next - state.p) > 0.002) {
-      state.p = next;
+  function canAnimate() {
+    return !paused && !staticScene && !document.hidden && state.p < 1 / 1.9;
+  }
+
+  function stopAnimation() {
+    if (animationStopped) return;
+    animationStopped = true;
+    if (frameId !== null) cancelAnimationFrame(frameId);
+    if (wordTimer !== null) clearInterval(wordTimer);
+    phaseTimers.forEach(clearTimeout);
+    frameId = null;
+    wordTimer = null;
+    phaseTimers = [];
+    lastTick = null;
+    state.phase = 0;
+    renderWord();
+    // A pause must also cancel a word transition already in progress.
+    el.word.style.transition = "none";
+  }
+
+  function loop(now) {
+    frameId = null;
+    if (!canAnimate()) return;
+    if (lastTick !== null) state.t += (now - lastTick) / 1000;
+    lastTick = now;
+    if (now - lastPaint >= 40) {
+      lastPaint = now;
       render();
     }
+    frameId = requestAnimationFrame(loop);
   }
+
+  function syncAnimation() {
+    if (!canAnimate()) {
+      stopAnimation();
+      return;
+    }
+    if (frameId !== null) return;
+    animationStopped = false;
+    frameId = requestAnimationFrame(loop);
+    wordTimer = setInterval(function () {
+      state.phase = 1;
+      renderWord();
+      phaseTimers = [
+        setTimeout(function () {
+          state.wordIndex = (state.wordIndex + 1) % WORDS.length;
+          state.phase = 2;
+          renderWord();
+        }, OUT),
+        setTimeout(function () {
+          state.phase = 0;
+          renderWord();
+        }, OUT + 20)
+      ];
+    }, CYCLE);
+  }
+
+  function onScroll() {
+    var vh = el.hero.clientHeight || document.documentElement.clientHeight || 1;
+    // Only pause clocks after the whole hero has left the viewport.
+    state.p = window.scrollY >= vh ? 1 : 0;
+    if (renderedProgress !== state.p || renderedStatic !== staticScene) render();
+    syncAnimation();
+  }
+
+  function updatePreferences() {
+    staticScene = reducedMotion.matches || shortViewport.matches;
+    el.hero.classList.toggle("hero--static", staticScene);
+    if (staticScene && document.activeElement === el.motion) {
+      el.brand.focus({ preventScroll: true });
+    }
+    el.motion.hidden = staticScene;
+    if (staticScene) {
+      state.t = 0;
+      state.wordIndex = 0;
+      renderWord();
+    }
+    onScroll();
+  }
+
+  el.motion.addEventListener("click", function () {
+    paused = !paused;
+    el.motion.setAttribute("aria-pressed", String(paused));
+    el.motion.textContent = paused ? "Продолжить анимацию" : "Остановить анимацию";
+    syncAnimation();
+  });
 
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
-  onScroll();
-  render();
+  reducedMotion.addEventListener("change", updatePreferences);
+  shortViewport.addEventListener("change", updatePreferences);
 
-  if (!MOTION) return;
-
-  /* ---- часы ------------------------------------------------------------ */
-
-  var start = performance.now();
-  var last = 0;
-
-  function loop(now) {
-    requestAnimationFrame(loop);
-    if (now - last < 40) return; // 25 кадров/с достаточно для медленного дрейфа
-    last = now;
-    state.t = (now - start) / 1000;
-    render();
-  }
-
-  requestAnimationFrame(loop);
-
-  /* ---- смена слова ----------------------------------------------------- */
-
-  setInterval(function () {
-    state.phase = 1;
-    render();
-
-    setTimeout(function () {
-      state.wordIndex = (state.wordIndex + 1) % WORDS.length;
-      state.phase = 2; // мгновенно переставляем слово вниз, без перехода
-      render();
-    }, OUT);
-
-    setTimeout(function () {
-      state.phase = 0; // и отпускаем его вверх на место
-      render();
-    }, OUT + 40);
-  }, CYCLE);
+  document.addEventListener("visibilitychange", syncAnimation);
+  window.addEventListener("pagehide", stopAnimation);
+  window.addEventListener("pageshow", onScroll);
+  renderWord();
+  updatePreferences();
 })();

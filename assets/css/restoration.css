@@ -1,0 +1,59 @@
+/* Restore the scale before the compact layout passes; retain shared axes. */
+:root { --content-width:1240px; --section-space:clamp(48px,5.4vw,78px); --content-gap:clamp(24px,3vw,44px); --card-space:clamp(20px,2.2vw,32px); --heading-size:clamp(32px,4vw,60px); }
+html { scroll-padding-top:0; }
+#how, #examples, #pricing, #faq, #request { scroll-margin-top:96px; }
+.section-title { font-size:var(--heading-size); }
+.example-art { max-width:360px; }
+#song-title { font-size:clamp(28px,2.8vw,40px) !important; }
+.song-thumb { width:64px; height:64px; }
+.footer-story { font-size:clamp(30px,3.2vw,46px); }
+.site-header .nav__brand, .legal-header > a:first-child { width:172px; flex-basis:172px; }
+.site-header .nav__brand .brand-logo, .legal-header .brand-logo { max-width:172px; max-height:50px; }
+.site-header { padding-block:5px; }
+.legal-header { padding-block:5px !important; }
+.footer-brand { width:200px; background:none; padding:0; border-radius:0; }
+
+/* A single, naturally scrolling viewport. No sticky scene or spacer. */
+.hero, html:not(.hero-enhanced) .hero, .hero.hero--static { position:relative; top:auto; height:auto; min-height:100svh; background:#372A52; }
+.hero__content, .hero--static .hero__content, html:not(.hero-enhanced) .hero__content {
+  position:relative; inset:auto; display:flex; flex-direction:column; justify-content:center; align-items:center;
+  min-height:100svh; padding:104px 20px 72px;
+}
+.hero__main { width:min(100%,960px); }
+.hero__title { font-size:clamp(40px,6.1vw,88px); line-height:1.05; row-gap:.1em; }
+.hero__title-line { line-height:1.05; }
+.hero__title-slot { height:2.25em; overflow:visible; }
+.hero__word { grid-template-rows:1.16em 1.05em; gap:.04em; }
+.hero__script { font-size:.92em; line-height:1.15; padding-top:.08em; transform:none; }
+.hero__ending { line-height:1.05; }
+.hero__lede { margin-top:20px; font-size:18px; max-width:46ch; }
+.hero__cta { margin-top:24px; min-height:50px; }
+.hero__content .proof { align-self:center; margin-top:22px; }
+.hero__content .proof__total { font-size:34px; }
+.hero__content .proof__caption { font-size:14px; }
+.hero__sky { height:100%; left:0; right:0; border-radius:0; }
+.hero__bank--2 { top:84%; width:116%; }
+.hero__bank--3 { top:83%; width:108%; }
+.hero__cloud--a { left:-12%; width:36%; top:24%; }
+.hero__cloud--b { right:-12%; width:32%; top:20%; }
+.hero__cloud--c { right:-10%; width:26%; top:39%; }
+.hero__next, .hero--static .hero__next, html:not(.hero-enhanced) .hero__next { display:none; }
+.hero__motion { left:auto; right:16px; bottom:12px; padding:6px 10px; min-height:44px; border:0; background:rgba(55,42,82,.78); color:#F4EFE6; font-size:11px; }
+.hero__motion:hover { background:#372A52; }
+.hero__motion:focus-visible { outline:2px solid #F4EFE6; outline-offset:3px; }
+@media(max-width:859px) { .hero__title { font-size:clamp(38px,7vw,60px); } }
+@media(max-width:600px) {
+  .site-header .nav__brand, .legal-header > a:first-child { width:140px; flex-basis:140px; }
+  .site-header .nav__brand .brand-logo, .legal-header .brand-logo { max-width:140px; }
+  .hero__content, .hero--static .hero__content, html:not(.hero-enhanced) .hero__content { padding:104px 16px 96px; }
+  .hero__title { font-size:clamp(32px,9.7vw,46px); }
+  .hero__lede { font-size:16px; max-width:30ch; }
+  .hero__content .proof { margin-top:24px; }
+  .hero__content .proof__total { font-size:30px; }
+  .hero__cloud--a { left:-38%; width:48%; }
+  .hero__cloud--b { right:-38%; width:48%; }
+  .hero__cloud--c { right:-36%; width:42%; }
+  .hero__bank--2 { top:84%; width:170%; }
+  .hero__bank--3 { top:83%; width:155%; }
+}
+@media(max-height:650px) and (min-width:601px) { .hero__title { font-size:clamp(34px,5vw,60px); } }

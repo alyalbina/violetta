@@ -1,0 +1,30 @@
+.pricing-intro { max-width:1060px; margin:0 auto 32px; }
+.pricing-intro > span { font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--focus); font-weight:700; }
+.pricing-intro h2 { margin:10px 0 12px; max-width:24ch !important; font-family:'Playfair Display',Georgia,serif; font-weight:500; letter-spacing:-.02em; }
+.pricing-intro p { font-size:16px; color:var(--muted); margin:0; }
+.cover-control #song-cover { transition:transform 240ms; }
+.cover-control:hover #song-cover { transform:scale(1.02); }
+.cover-play { top:50%; left:50%; right:auto; bottom:auto; transform:translate(-50%,-50%); width:48px; height:48px; background:#F4EFE6e8; }
+.cover-control:hover:not(:disabled) .cover-play { transform:translate(-50%,-50%) scale(1.06); }
+#song-status:empty { display:none; }
+.song-seek { cursor:pointer; }
+.menu-toggle span { margin:0; transition:transform 240ms; }
+.menu-toggle span + span { margin-top:7px; }
+.menu-toggle[aria-expanded='true'] span:nth-child(1) { transform:translateY(4.25px) rotate(45deg); }
+.menu-toggle[aria-expanded='true'] span:nth-child(2) { opacity:1; transform:translateY(-4.25px) rotate(-45deg); }
+@media(max-width:859px) {
+ .site-header, html:not(.landing-enhanced) .site-header { position:relative; left:auto; top:auto; transform:none; width:100%; margin:0; padding:10px 20px; border-radius:0; box-shadow:none; min-height:68px; background:#F4EFE6; }
+ .site-header:has(.menu-toggle[aria-expanded='true']) { border-radius:0; }
+ .site-header .header-row { min-height:48px; }
+ .site-header .nav__brand { width:126px; flex-basis:126px; }
+ .site-header .nav__brand .brand-logo { width:126px; max-height:36px; }
+ .site-header .desktop-nav, .site-header .header-cta { display:none; }
+ .menu-toggle { border-radius:0; }
+ .mobile-menu { margin:8px 0 0; padding:12px 0 4px; border-radius:0; box-shadow:none; background:transparent; }
+ .mobile-menu a { font:500 23px/1.3 'Playfair Display',Georgia,serif; padding:12px 0; }
+ .mobile-menu .nav__cta { font:600 15px/1.3 Manrope,system-ui,sans-serif; padding:14px 20px; }
+ .hero, html:not(.hero-enhanced) .hero, .hero.hero--static { min-height:calc(100svh - 68px); }
+ .hero__content, .hero--static .hero__content, html:not(.hero-enhanced) .hero__content { min-height:calc(100svh - 68px); padding-top:36px; }
+ #how, #examples, #pricing, #faq, #request, .request-handoff { scroll-margin-top:20px; }
+}
+@media(prefers-reduced-motion:reduce) { .faq-sign::before, .faq-sign::after, .cover-control #song-cover, .cover-play, .menu-toggle span { transition:none; } }

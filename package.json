@@ -1,0 +1,16 @@
+{
+  "name": "vivobit-landing",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Static landing page; npm is only needed for development checks.",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "check": "node --check assets/js/hero.js && node --check assets/js/landing.js && node --check assets/js/request-core.js && node --check assets/js/site-data.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}

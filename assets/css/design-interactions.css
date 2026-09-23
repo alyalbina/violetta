@@ -1,0 +1,29 @@
+/* Base values moved from inline styles so interaction states can apply. */
+.authored-control-1 { background: #2C2144; }
+.authored-control-2 { background: rgba(255, 255, 255, 0.6);color: #2C2144; }
+.authored-control-3 { background: rgba(255, 255, 255, 0.6);color: #2C2144; }
+.authored-control-4 { background: rgba(255, 255, 255, 0.6);color: #2C2144; }
+.authored-control-5 { background: #C9455C;color: #FFFFFF; }
+.authored-control-6 { background: #2C2144;color: #FDFCFB; }
+.authored-control-7 { background: #2C2144; }
+.authored-control-8 { background: #2C2144;color: #FDFCFB; }
+.authored-control-9 { box-shadow: 0 16px 38px rgba(120, 74, 104, 0.07);color: #2C2144; }
+.authored-control-10 { box-shadow: 0 16px 38px rgba(120, 74, 104, 0.07);color: #2C2144; }
+.authored-control-11 { color: #A5304A; }
+.authored-control-12 { color: #A5304A; }
+.authored-control-13 { background: #2C2144; }
+/* Interaction declarations preserved from the supplied Claude Design export. */
+@media (hover: hover) { .interaction-1:hover { background: #3D2F5E; transform: translateY(-1px); } }
+.interaction-2:active { transform: translateY(1px); }
+.interaction-3:focus-visible { outline: 2px solid #C9455C; outline-offset: 4px; }
+@media (hover: hover) { .interaction-4:hover { background: #FFFFFF; color: #2C2144; } }
+@media (hover: hover) { .interaction-5:hover { background: #D0475C; color: #FFFFFF; transform: translateY(-2px); } }
+.interaction-6:focus-visible { outline: 2px solid #2C2144; outline-offset: 4px; }
+.interaction-7:focus-visible { outline: 2px solid #C9455C; outline-offset: 3px; }
+@media (hover: hover) { .interaction-8:hover { background: #3D2F5E; color: #FDFCFB; transform: translateY(-2px); } }
+@media (hover: hover) { .interaction-9:hover { transform: translateY(-2px); box-shadow: 0 22px 48px rgba(120, 74, 104, 0.13); color: #2C2144; } }
+@media (hover: hover) { .interaction-10:hover { color: #C9455C; } }
+@media (hover: hover) { .interaction-11:hover { color: #A5304A; } }
+@media (hover: hover) { .interaction-12:hover { border-color: rgba(201, 69, 92, 0.45); } }
+.interaction-13:focus-visible { border-color: #C9455C; }
+@media (hover: hover) { .interaction-14:hover { background: #3D2F5E; transform: translateY(-2px); } }
