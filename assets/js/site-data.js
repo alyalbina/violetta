@@ -12,7 +12,7 @@ window.VivobitData = {
       "what": "Юбилей",
       "tint": "linear-gradient(180deg, #EDE1F2 0%, #EDE9F2 34%, #F1EAE6 70%, #F6EEE6 100%)",
       "cover": "assets/img/song-cover-1.webp",
-      "vinyl": "assets/img/vinyl-1.png",
+      "vinyl": "assets/img/vinyl-1.webp",
       "audioSrc": null,
       "prototypeDuration": 167
     },
@@ -26,7 +26,7 @@ window.VivobitData = {
       "what": "Годовщина",
       "tint": "linear-gradient(180deg, #EDE1F2 0%, #F3DEE4 36%, #F9E2DC 72%, #F6EEE6 100%)",
       "cover": "assets/img/song-cover-2.webp",
-      "vinyl": "assets/img/vinyl-2.png",
+      "vinyl": "assets/img/vinyl-2.webp",
       "audioSrc": null,
       "prototypeDuration": 183
     },
@@ -40,7 +40,7 @@ window.VivobitData = {
       "what": "Последний звонок",
       "tint": "linear-gradient(180deg, #EDE1F2 0%, #E6EBF6 38%, #EFEDF3 72%, #F6EEE6 100%)",
       "cover": "assets/img/song-cover-3.webp",
-      "vinyl": "assets/img/vinyl-3.png",
+      "vinyl": "assets/img/vinyl-3.webp",
       "audioSrc": null,
       "prototypeDuration": 176
     },
@@ -54,7 +54,7 @@ window.VivobitData = {
       "what": "30 лет",
       "tint": "linear-gradient(180deg, #EDE1F2 0%, #F5DFE0 36%, #FAE4DC 72%, #F6EEE6 100%)",
       "cover": "assets/img/song-cover-4.webp",
-      "vinyl": "assets/img/vinyl-4.png",
+      "vinyl": "assets/img/vinyl-4.webp",
       "audioSrc": null,
       "prototypeDuration": 159
     },
@@ -68,7 +68,7 @@ window.VivobitData = {
       "what": "Юбилей",
       "tint": "linear-gradient(180deg, #EDE1F2 0%, #E7ECF5 38%, #EFE6EC 72%, #F6EEE6 100%)",
       "cover": "assets/img/song-cover-5.webp",
-      "vinyl": "assets/img/vinyl-5.png",
+      "vinyl": "assets/img/vinyl-5.webp",
       "audioSrc": null,
       "prototypeDuration": 191
     }
