@@ -301,3 +301,17 @@ html:not(.landing-enhanced) .hero__content { padding-top: 24px; }
   .song-player, #song-detail { margin-top: 14px !important; }
   .footer-story { font-size: 34px; }
 }
+
+/* Доступная подсказка для ссылок, открывающихся в новой вкладке.
+   Видна только скринридеру — визуально текст ссылки не меняется. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

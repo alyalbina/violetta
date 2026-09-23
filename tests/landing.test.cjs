@@ -223,17 +223,22 @@ test('request rules reject unknown choices and preserve literal user text safely
   assert.equal(request.validate({...good, contact:'javascript:alert(1)'}).field, 'contact');
 });
 
-test('legal links use ordinary same-tab routes under a deployment base path', () => {
+// Legal routes stay relative so the site keeps working under a deployment base
+// path. Whether they open in a new tab is a separate question, and it depends on
+// the page: index.html carries the request draft, the document pages do not.
+test('legal links resolve relative to a deployment base path', () => {
   for (const file of ['index.html','privacy.html','offer.html']) {
     const dom = new JSDOM(fs.readFileSync(path.join(root,file),'utf8'), {url:'https://example.test/vivobit/'+file});
     const d = dom.window.document;
-    assert.equal(d.querySelector('dialog, [data-legal], script[src*="legal-dialog"]'),null);
+    assert.equal(d.querySelector('script[src*="legal-dialog"]'),null);
+    const expectNewTab = file === 'index.html' ? '_blank' : '';
     for (const route of ['privacy.html','offer.html']) {
       const links=d.querySelectorAll('a[href="'+route+'"]');
       assert.ok(links.length);
       for(const link of links) {
         assert.equal(link.href,'https://example.test/vivobit/'+route);
-        assert.equal(link.target,'');
+        assert.equal(link.target, expectNewTab,
+          `${file} → ${route}: only the page holding a draft opens documents in a new tab`);
       }
     }
     dom.window.close();
@@ -345,4 +350,28 @@ test('Avito hides and disables contact, prepares and copies without leaking prev
   form.elements.contact.value='https://vk.com/example_user';
   form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
   assert.match(d.getElementById('request-message').value,/Страница: https:\/\/vk.com\/example_user/);
+});
+// Regression guard for D01: reading a legal document must never unload the page
+// holding a filled-in request. The earlier dialog-based fix was removed without
+// any test noticing, and the draft is intentionally kept out of any storage —
+// so the only thing preserving it is that these links open in a new tab.
+test('legal links never unload a filled request draft', t => {
+  const {d}=setup(t);
+  const links=[...d.querySelectorAll('a[href$="privacy.html"], a[href$="offer.html"]')];
+  assert.ok(links.length>=4, `expected the legal links to be present, found ${links.length}`);
+  for (const link of links) {
+    assert.equal(link.target,'_blank', `${link.getAttribute('href')} must open in a new tab`);
+    assert.match(link.rel,/noopener/, `${link.getAttribute('href')} must set rel=noopener`);
+    assert.match(link.textContent,/новой вкладке/, `${link.getAttribute('href')} must announce the new tab`);
+  }
+});
+
+test('request draft survives reading a legal document', t => {
+  const {w,d}=setup(t); const form=fillRequest(w,d);
+  form.elements.contact.value='@vera'; form.elements.name.value='Вера';
+  d.querySelector('.form-policy a[href$="privacy.html"]').click();
+  // A target=_blank link leaves this document untouched, so the draft is still here.
+  assert.equal(form.elements.contact.value,'@vera');
+  assert.equal(form.elements.name.value,'Вера');
+  assert.equal(d.getElementById('request').isConnected,true);
 });
